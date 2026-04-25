@@ -62,14 +62,6 @@ export default function LoginPage() {
             onChange={e => setPassword(e.target.value)}
             required
           />
-          <input 
-            type="password" 
-            placeholder="Password"
-            required
-            className="w-full p-4 bg-storm-cream border-none rounded-xl focus:ring-2 focus:ring-storm-primary outline-none"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 

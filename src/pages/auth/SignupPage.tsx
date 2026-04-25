@@ -45,22 +45,28 @@ export default function SignupPage() {
         return;
       }
 
-      // Create Firebase user
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      console.log("[v0] Signup: Email validation - email:", formData.email.toLowerCase().trim());
+      console.log("[v0] Signup: Password length:", formData.password.length);
+
+      // Create Firebase user with trimmed and lowercase email
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email.toLowerCase().trim(), formData.password);
       const user = userCredential.user;
+      console.log("[v0] Signup: Firebase user created with UID:", user.uid, "Email:", user.email);
 
       // Update profile
       await updateProfile(user, { displayName: formData.name });
+      console.log("[v0] Signup: User profile updated");
 
       // Save user data to Firestore
       await setDoc(doc(db, 'users', user.uid), {
         name: formData.name,
-        email: formData.email,
+        email: formData.email.toLowerCase().trim(),
         dateOfBirth: formData.dateOfBirth,
         language: formData.language,
         createdAt: serverTimestamp(),
         onboardingCompleted: true
       });
+      console.log("[v0] Signup: User document saved to Firestore");
 
       // Save private profile data with cycle info
       const lastPeriodDate = new Date(formData.lastPeriod);
@@ -70,11 +76,16 @@ export default function SignupPage() {
         avgPeriodLength: formData.avgPeriod,
         isRegular: formData.isRegular
       });
-
-      console.log("[v0] Signup successful for user:", user.email);
+      console.log("[v0] Signup: Cycle data saved");
+      
+      // Small delay to ensure all writes complete before redirect
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log("[v0] Signup: Complete - redirecting to dashboard");
       navigate('/dashboard');
+      
     } catch (err: any) {
-      console.error("[v0] Signup error:", err);
+      console.error("[v0] Signup error code:", err.code);
+      console.error("[v0] Signup error message:", err.message);
       if (err.code === 'auth/email-already-in-use') {
         setError('Email already registered. Please log in instead.');
       } else if (err.code === 'auth/weak-password') {
@@ -82,7 +93,6 @@ export default function SignupPage() {
       } else {
         setError(err.message);
       }
-    } finally {
       setLoading(false);
     }
   };

@@ -35,6 +35,58 @@ export default function SignupPage() {
   const handleNext = () => setCurrentStep(prev => Math.min(prev + 1, 4));
   const handleBack = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
+  const handleSignup = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      if (!formData.email || !formData.password || !formData.name || !formData.lastPeriod) {
+        setError('Please fill in all required fields');
+        setLoading(false);
+        return;
+      }
+
+      // Create Firebase user
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
+
+      // Update profile
+      await updateProfile(user, { displayName: formData.name });
+
+      // Save user data to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        name: formData.name,
+        email: formData.email,
+        dateOfBirth: formData.dateOfBirth,
+        language: formData.language,
+        createdAt: serverTimestamp(),
+        onboardingCompleted: true
+      });
+
+      // Save private profile data with cycle info
+      const lastPeriodDate = new Date(formData.lastPeriod);
+      await setDoc(doc(db, 'users', user.uid, 'private', 'profile'), {
+        lastPeriodDate: lastPeriodDate,
+        avgCycleLength: formData.avgCycle,
+        avgPeriodLength: formData.avgPeriod,
+        isRegular: formData.isRegular
+      });
+
+      console.log("[v0] Signup successful for user:", user.email);
+      navigate('/dashboard');
+    } catch (err: any) {
+      console.error("[v0] Signup error:", err);
+      if (err.code === 'auth/email-already-in-use') {
+        setError('Email already registered. Please log in instead.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password must be at least 6 characters.');
+      } else {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-storm-cream flex flex-col items-center justify-center p-4">
       <Link to="/" className="mb-8">

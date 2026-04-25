@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, Link } from 'react-router-dom';
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../lib/firebase';
 import { ArrowRight, ArrowLeft, Check, Search } from 'lucide-react';
@@ -39,78 +39,61 @@ export default function SignupPage() {
     setLoading(true);
     setError('');
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      if (!formData.email || !formData.password || !formData.name || !formData.lastPeriod) {
+        setError('Please fill in all required fields');
+        setLoading(false);
+        return;
+      }
+
+      console.log("[v0] Signup: Email validation - email:", formData.email.toLowerCase().trim());
+      console.log("[v0] Signup: Password length:", formData.password.length);
+
+      // Create Firebase user with trimmed and lowercase email
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email.toLowerCase().trim(), formData.password);
       const user = userCredential.user;
+      console.log("[v0] Signup: Firebase user created with UID:", user.uid, "Email:", user.email);
 
+      // Update profile
       await updateProfile(user, { displayName: formData.name });
+      console.log("[v0] Signup: User profile updated");
 
-      console.log("Saving user data:", {
-        name: formData.name,
-        email: formData.email,
-        dateOfBirth: formData.dateOfBirth,
-        preferredLanguage: formData.language,
-        onboardingCompleted: false
-      });
+      // Save user data to Firestore
       await setDoc(doc(db, 'users', user.uid), {
         name: formData.name,
-        email: formData.email,
+        email: formData.email.toLowerCase().trim(),
         dateOfBirth: formData.dateOfBirth,
-        preferredLanguage: formData.language,
-        onboardingCompleted: false,
-        createdAt: serverTimestamp()
+        language: formData.language,
+        createdAt: serverTimestamp(),
+        onboardingCompleted: true
       });
+      console.log("[v0] Signup: User document saved to Firestore");
 
-      // Create private profile
-      console.log("Saving private profile:", {
-        avgCycleLength: formData.avgCycle,
-        avgPeriodLength: formData.avgPeriod,
-        lastPeriodDate: formData.lastPeriod ? new Date(formData.lastPeriod) : null,
-        cycleRegularity: formData.isRegular
-      });
+      // Save private profile data with cycle info
+      const lastPeriodDate = new Date(formData.lastPeriod);
       await setDoc(doc(db, 'users', user.uid, 'private', 'profile'), {
+        lastPeriodDate: lastPeriodDate,
         avgCycleLength: formData.avgCycle,
         avgPeriodLength: formData.avgPeriod,
-        lastPeriodDate: formData.lastPeriod ? new Date(formData.lastPeriod) : null,
-        cycleRegularity: formData.isRegular
+        isRegular: formData.isRegular
       });
-
+      console.log("[v0] Signup: Cycle data saved");
+      
+      // Small delay to ensure all writes complete before redirect
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log("[v0] Signup: Complete - redirecting to dashboard");
       navigate('/dashboard');
+      
     } catch (err: any) {
+      console.error("[v0] Signup error code:", err.code);
+      console.error("[v0] Signup error message:", err.message);
       if (err.code === 'auth/email-already-in-use') {
-        setError('This email is already registered. Please log in instead, or use a different email.');
+        setError('Email already registered. Please log in instead.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password must be at least 6 characters.');
       } else {
         setError(err.message);
       }
-    } finally {
       setLoading(false);
-    }
-  };
-
-  const handleGoogleSignup = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // Check if user document exists, if not create basic one
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, 'users', user.uid), {
-          name: user.displayName || 'User',
-          email: user.email,
-          onboardingCompleted: false,
-          createdAt: serverTimestamp()
-        });
-        // Create initial private profile
-        await setDoc(doc(db, 'users', user.uid, 'private', 'profile'), {
-          avgCycleLength: 28,
-          avgPeriodLength: 5,
-        });
-      }
-
-      navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message);
     }
   };
 
@@ -141,17 +124,6 @@ export default function SignupPage() {
                 exit={{ x: -20, opacity: 0 }}
               >
                 <h2 className="text-2xl mb-6">Create your account</h2>
-                <button 
-                  onClick={handleGoogleSignup}
-                  className="w-full flex items-center justify-center gap-3 py-3 border border-storm-border rounded-xl hover:bg-storm-cream transition-colors mb-6"
-                >
-                  <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-                  Continue with Google
-                </button>
-                <div className="relative mb-6 text-center">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-storm-border"></div></div>
-                  <span className="relative px-4 bg-white text-sm text-storm-muted uppercase tracking-wider">or email</span>
-                </div>
                 <div className="space-y-4">
                   <input 
                     type="email" 

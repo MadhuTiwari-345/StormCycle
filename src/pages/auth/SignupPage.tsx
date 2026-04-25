@@ -35,34 +35,6 @@ export default function SignupPage() {
   const handleNext = () => setCurrentStep(prev => Math.min(prev + 1, 4));
   const handleBack = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
-  const handleGoogleSignup = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // Check if user document exists, if not create basic one
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, 'users', user.uid), {
-          name: user.displayName || 'User',
-          email: user.email,
-          onboardingCompleted: false,
-          createdAt: serverTimestamp()
-        });
-        // Create initial private profile
-        await setDoc(doc(db, 'users', user.uid, 'private', 'profile'), {
-          avgCycleLength: 28,
-          avgPeriodLength: 5,
-        });
-      }
-
-      navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-storm-cream flex flex-col items-center justify-center p-4">
       <Link to="/" className="mb-8">

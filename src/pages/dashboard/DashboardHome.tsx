@@ -25,14 +25,7 @@ export default function DashboardHome() {
   const [userData, setUserData] = useState<any>(null);
   const [privateData, setPrivateData] = useState<any>(null);
 
-  const [prediction, setPrediction] = useState({
-    nextDate: addDays(new Date(), 14),
-    confidence: 91.3,
-    day: 14,
-    total: 28,
-    phase: 'follicular',
-    phaseDescription: 'follicular phase. Your energy should be rising.'
-  });
+  const [prediction, setPrediction] = useState<any>(null);
 
   const [isAdjusting, setIsAdjusting] = useState(false);
   const [tempNextDate, setTempNextDate] = useState(() => format(addDays(new Date(), 14), 'yyyy-MM-dd'));
@@ -241,12 +234,18 @@ export default function DashboardHome() {
 
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-storm-text">Hello, {userData?.displayName || userData?.name?.split(' ')[0] || 'User'}</h1>
-          <p className="text-storm-muted">You&apos;re in your {prediction.phaseDescription}</p>
+          <h1 className="text-3xl font-serif text-storm-text">
+            Hello, {userData?.name ? userData.name.split(' ')[0] : (auth.currentUser?.displayName ? auth.currentUser.displayName.split(' ')[0] : 'User')}
+          </h1>
+          <p className="text-storm-muted">
+            {prediction ? `You're in your ${prediction.phaseDescription}` : 'Loading your cycle information...'}
+          </p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-storm-blush rounded-full text-storm-primary font-medium text-sm">
-          <Sparkles size={16} /> Day {prediction.day} of {prediction.total}
-        </div>
+        {prediction && (
+          <div className="flex items-center gap-2 px-4 py-2 bg-storm-blush rounded-full text-storm-primary font-medium text-sm">
+            <Sparkles size={16} /> Day {prediction.day} of {prediction.total}
+          </div>
+        )}
       </header>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">

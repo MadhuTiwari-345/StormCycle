@@ -70,54 +70,74 @@ export default function DashboardHome() {
   };
 
   useEffect(() => {
-    if (!auth.currentUser) return;
+    if (!auth.currentUser) {
+      console.log("[v0] No current user");
+      return;
+    }
+
+    console.log("[v0] Dashboard: Loading data for user:", auth.currentUser.uid);
 
     // Fetch user and profile data
     const fetchData = async () => {
         if (!auth.currentUser) return;
-        const userRef = doc(db, 'users', auth.currentUser.uid);
-        const userSnap = await getDoc(userRef);
-        console.log("Fetched user data:", userSnap.data());
-        if (userSnap.exists()) {
-             setUserData(userSnap.data());
-        }
+        try {
+          const userRef = doc(db, 'users', auth.currentUser.uid);
+          const userSnap = await getDoc(userRef);
+          console.log("[v0] Dashboard: User document exists:", userSnap.exists());
+          console.log("[v0] Dashboard: User data:", userSnap.data());
+          
+          if (userSnap.exists()) {
+               setUserData(userSnap.data());
+          }
 
-        const profileRef = doc(db, 'users', auth.currentUser.uid, 'private', 'profile');
-        const profileSnap = await getDoc(profileRef);
-        console.log("Fetched profile data:", profileSnap.data());
-        if (profileSnap.exists()) {
-             const data = profileSnap.data();
-             setPrivateData(data);
-             if (data.lastPeriodDate) {
-                const lastPeriod = data.lastPeriodDate.toDate();
-                const cycleLength = data.avgCycleLength || 28;
-                const nextDate = addDays(lastPeriod, cycleLength);
-                
-                // Calculate the current phase and day
-                const phaseInfo = calculatePhase(lastPeriod, cycleLength);
-                
-                setPrediction(prev => ({ 
-                  ...prev, 
-                  nextDate,
-                  phase: phaseInfo.phase,
-                  phaseDescription: phaseInfo.phaseDescription,
-                  day: phaseInfo.day,
-                  total: phaseInfo.total
-                }));
-             }
+          const profileRef = doc(db, 'users', auth.currentUser.uid, 'private', 'profile');
+          const profileSnap = await getDoc(profileRef);
+          console.log("[v0] Dashboard: Profile document exists:", profileSnap.exists());
+          console.log("[v0] Dashboard: Profile data:", profileSnap.data());
+          
+          if (profileSnap.exists()) {
+               const data = profileSnap.data();
+               setPrivateData(data);
+               if (data.lastPeriodDate) {
+                  const lastPeriod = data.lastPeriodDate.toDate();
+                  const cycleLength = data.avgCycleLength || 28;
+                  const nextDate = addDays(lastPeriod, cycleLength);
+                  
+                  console.log("[v0] Dashboard: Last period:", lastPeriod);
+                  console.log("[v0] Dashboard: Cycle length:", cycleLength);
+                  
+                  // Calculate the current phase and day
+                  const phaseInfo = calculatePhase(lastPeriod, cycleLength);
+                  console.log("[v0] Dashboard: Phase info:", phaseInfo);
+                  
+                  setPrediction(prev => ({ 
+                    ...prev, 
+                    nextDate,
+                    phase: phaseInfo.phase,
+                    phaseDescription: phaseInfo.phaseDescription,
+                    day: phaseInfo.day,
+                    total: phaseInfo.total
+                  }));
+               }
+          }
+        } catch (err) {
+          console.error("[v0] Dashboard: Error fetching data:", err);
         }
     };
     fetchData();
 
     // Check onboarding status
     const checkOnboarding = async () => {
-      const userRef = doc(db, 'users', auth.currentUser!.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists() && !userSnap.data().onboardingCompleted) {
-        setShowOnboarding(true);
+      try {
+        const userRef = doc(db, 'users', auth.currentUser!.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists() && !userSnap.data().onboardingCompleted) {
+          setShowOnboarding(true);
+        }
+      } catch (err) {
+        console.error("[v0] Dashboard: Error checking onboarding:", err);
       }
     };
-    
     checkOnboarding();
     
     const logsRef = collection(db, 'users', auth.currentUser.uid, 'cycleLogs');
@@ -130,6 +150,9 @@ export default function DashboardHome() {
         date: doc.data().date.toDate()
       })) as CycleLog[];
       setLogs(data);
+      setLoading(false);
+    }, (err) => {
+      console.error("[v0] Dashboard: Error fetching logs:", err);
       setLoading(false);
     });
 

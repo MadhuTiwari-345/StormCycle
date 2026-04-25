@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Basic user account information",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "dateOfBirth": { "type": "string", "format": "date" },
+        "preferredLanguage": { "type": "string", "enum": ["en", "hi", "ta", "bn"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "preferredLanguage"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Specific health and cycle metrics",
+      "type": "object",
+      "properties": {
+        "height": { "type": "number" },
+        "weight": { "type": "number" },
+        "menarche": { "type": "integer" },
+        "avgCycleLength": { "type": "integer" },
+        "avgPeriodLength": { "type": "integer" },
+        "lastPeriodDate": { "type": "string", "format": "date-time" },
+        "birthControl": { "type": "string" },
+        "cycleRegularity": { "type": "string" }
+      }
+    },
+    "CycleLog": {
+      "title": "Cycle Log",
+      "description": "Daily cycle tracking entry",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date-time" },
+        "isFirstDay": { "type": "boolean" },
+        "flowIntensity": { "type": "string", "enum": ["none", "light", "medium", "heavy"] },
+        "symptoms": { "type": "array", "items": { "type": "string" } },
+        "mood": { "type": "string" },
+        "energyLevel": { "type": "integer" },
+        "notes": { "type": "string" }
+      },
+      "required": ["date"]
+    },
+    "PCODScreening": {
+      "title": "PCOD Screening",
+      "description": "Results of a PCOD screening session",
+      "type": "object",
+      "properties": {
+        "answers": { "type": "object" },
+        "riskScore": { "type": "number" },
+        "riskLevel": { "type": "string", "enum": ["low", "moderate", "high"] },
+        "breakdown": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Message in the AI chat history",
+      "type": "object",
+      "properties": {
+        "role": { "type": "string", "enum": ["user", "assistant"] },
+        "content": { "type": "string" },
+        "language": { "type": "string" },
+        "flagged": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Root user document"
+    },
+    "users/{userId}/private/profile": {
+      "schema": "UserProfile",
+      "description": "Sensitive user health metrics"
+    },
+    "users/{userId}/cycleLogs/{logId}": {
+      "schema": "CycleLog",
+      "description": "Collection of daily logs"
+    },
+    "users/{userId}/pcodScreenings/{screeningId}": {
+      "schema": "PCODScreening",
+      "description": "Collection of past screenings"
+    },
+    "users/{userId}/chatMessages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "AI chat history"
+    }
+  }
+}

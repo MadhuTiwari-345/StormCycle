@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "DM Sans", sans-serif;
+  
+  --color-storm-primary: #6B1A3A;     /* Deep Maroon */
+  --color-storm-secondary: #9B2D5A;   /* Rose Accent */
+  --color-storm-blush: #F0E6ED;       /* Soft Blush Background */
+  --color-storm-cream: #FAF7F5;       /* Page Background */
+  --color-storm-text: #1A0A12;        /* Rich Dark Text */
+  --color-storm-muted: #8A6070;       /* Muted Rose */
+  --color-storm-border: #E8D5DF;      /* Soft Border */
+  --color-storm-success: #2D7A4F;     /* Sage Green Success */
+  --color-storm-warning: #B45309;
+  --color-storm-danger: #991B1B;
+}
+
+@layer base {
+  body.dark {
+    --color-storm-cream: #12080D;
+    --color-storm-text: #ECE1E8;
+    --color-storm-blush: #2D101C;
+    --color-storm-border: #3D1A29;
+    --color-storm-muted: #B08D9A;
+    background-color: #12080D;
+    color: #ECE1E8;
+  }
+
+  body.dark aside,
+  body.dark header,
+  body.dark main section,
+  body.dark .bg-white {
+    background-color: #1A0A12;
+    border-color: #3D1A29;
+  }
+  
+  body {
+    @apply bg-storm-cream text-storm-text font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-medium leading-tight;
+  }
+
+  button, a, [role="button"] {
+    @apply cursor-pointer;
+  }
+}
+
+.markdown-body {
+  @apply prose prose-stone max-w-none;
+}

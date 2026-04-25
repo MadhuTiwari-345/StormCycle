@@ -1,0 +1,6 @@
+{
+  "name": "StormCycle",
+  "description": "AI-powered menstrual health for every cycle — not just the average one. Smart period tracking and PCOD risk prediction.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": []
+}

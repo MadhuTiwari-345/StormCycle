@@ -34,11 +34,23 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     try {
+      console.log("[v0] Attempting Google Sign-In");
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      provider.addScope('profile');
+      provider.addScope('email');
+      const result = await signInWithPopup(auth, provider);
+      console.log("[v0] Google Sign-In successful:", result.user.email);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.message);
+      console.error("[v0] Google Sign-In error:", err.code, err.message);
+      // Provide helpful error message
+      if (err.code === 'auth/unauthorized-domain') {
+        setError('Please contact support - Google authentication setup required.');
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in cancelled. Please try again.');
+      } else {
+        setError(err.message);
+      }
     }
   };
 

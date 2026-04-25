@@ -260,10 +260,6 @@ export default function DashboardHome() {
           {/* Quick Logs */}
           <section className="bg-white p-6 rounded-3xl shadow-sm border border-storm-border">
             <h3 className="text-lg mb-4">How are you feeling today?</h3>
-            {/* DEBUG INFO */}
-            <div className="bg-gray-100 p-2 text-xs mb-4">
-              <p>Debug: {JSON.stringify(privateData)}</p>
-            </div>
             <div className="flex flex-wrap gap-3">
               {['Cramps', 'Bloating', 'Mood', 'Energy', 'Skin'].map(s => (
                 <button key={s} className="px-4 py-2 bg-storm-cream border border-storm-border rounded-full text-sm hover:bg-storm-blush transition-colors">

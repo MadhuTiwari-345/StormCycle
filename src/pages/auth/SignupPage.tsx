@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, Link } from 'react-router-dom';
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../lib/firebase';
 import { ArrowRight, ArrowLeft, Check, Search } from 'lucide-react';
@@ -34,57 +34,6 @@ export default function SignupPage() {
 
   const handleNext = () => setCurrentStep(prev => Math.min(prev + 1, 4));
   const handleBack = () => setCurrentStep(prev => Math.max(prev - 1, 1));
-
-  const handleSignup = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      const user = userCredential.user;
-
-      await updateProfile(user, { displayName: formData.name });
-
-      console.log("Saving user data:", {
-        name: formData.name,
-        email: formData.email,
-        dateOfBirth: formData.dateOfBirth,
-        preferredLanguage: formData.language,
-        onboardingCompleted: false
-      });
-      await setDoc(doc(db, 'users', user.uid), {
-        name: formData.name,
-        email: formData.email,
-        dateOfBirth: formData.dateOfBirth,
-        preferredLanguage: formData.language,
-        onboardingCompleted: false,
-        createdAt: serverTimestamp()
-      });
-
-      // Create private profile
-      console.log("Saving private profile:", {
-        avgCycleLength: formData.avgCycle,
-        avgPeriodLength: formData.avgPeriod,
-        lastPeriodDate: formData.lastPeriod ? new Date(formData.lastPeriod) : null,
-        cycleRegularity: formData.isRegular
-      });
-      await setDoc(doc(db, 'users', user.uid, 'private', 'profile'), {
-        avgCycleLength: formData.avgCycle,
-        avgPeriodLength: formData.avgPeriod,
-        lastPeriodDate: formData.lastPeriod ? new Date(formData.lastPeriod) : null,
-        cycleRegularity: formData.isRegular
-      });
-
-      navigate('/dashboard');
-    } catch (err: any) {
-      if (err.code === 'auth/email-already-in-use') {
-        setError('This email is already registered. Please log in instead, or use a different email.');
-      } else {
-        setError(err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGoogleSignup = async () => {
     try {
@@ -141,17 +90,6 @@ export default function SignupPage() {
                 exit={{ x: -20, opacity: 0 }}
               >
                 <h2 className="text-2xl mb-6">Create your account</h2>
-                <button 
-                  onClick={handleGoogleSignup}
-                  className="w-full flex items-center justify-center gap-3 py-3 border border-storm-border rounded-xl hover:bg-storm-cream transition-colors mb-6"
-                >
-                  <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-                  Continue with Google
-                </button>
-                <div className="relative mb-6 text-center">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-storm-border"></div></div>
-                  <span className="relative px-4 bg-white text-sm text-storm-muted uppercase tracking-wider">or email</span>
-                </div>
                 <div className="space-y-4">
                   <input 
                     type="email" 

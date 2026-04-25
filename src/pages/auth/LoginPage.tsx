@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate, Link } from 'react-router-dom';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import { LogIn } from 'lucide-react';
 import StormLoader from '../../components/shared/StormLoader';
@@ -32,28 +32,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      console.log("[v0] Attempting Google Sign-In");
-      const provider = new GoogleAuthProvider();
-      provider.addScope('profile');
-      provider.addScope('email');
-      const result = await signInWithPopup(auth, provider);
-      console.log("[v0] Google Sign-In successful:", result.user.email);
-      navigate('/dashboard');
-    } catch (err: any) {
-      console.error("[v0] Google Sign-In error:", err.code, err.message);
-      // Provide helpful error message
-      if (err.code === 'auth/unauthorized-domain') {
-        setError('Please contact support - Google authentication setup required.');
-      } else if (err.code === 'auth/popup-closed-by-user') {
-        setError('Sign-in cancelled. Please try again.');
-      } else {
-        setError(err.message);
-      }
-    }
-  };
-
   return (
     <div className="min-h-screen bg-storm-cream flex flex-col items-center justify-center p-4">
       <Link to="/" className="mb-8">
@@ -67,27 +45,22 @@ export default function LoginPage() {
       >
         <h2 className="text-2xl mb-6">Welcome back</h2>
         
-        <button 
-          onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 py-3 border border-storm-border rounded-xl hover:bg-storm-cream transition-colors mb-6"
-        >
-          <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-          Continue with Google
-        </button>
-
-        <div className="relative mb-6 text-center">
-          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-storm-border"></div></div>
-          <span className="relative px-4 bg-white text-sm text-storm-muted uppercase tracking-wider">or email</span>
-        </div>
-
         <form onSubmit={handleLogin} className="space-y-4">
           <input 
-            type="email" 
+            type="email"
             placeholder="Email address"
-            required
             className="w-full p-4 bg-storm-cream border-none rounded-xl focus:ring-2 focus:ring-storm-primary outline-none"
             value={email}
             onChange={e => setEmail(e.target.value)}
+            required
+          />
+          <input 
+            type="password"
+            placeholder="Password"
+            className="w-full p-4 bg-storm-cream border-none rounded-xl focus:ring-2 focus:ring-storm-primary outline-none"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
           />
           <input 
             type="password" 

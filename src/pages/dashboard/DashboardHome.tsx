@@ -29,12 +29,45 @@ export default function DashboardHome() {
     nextDate: addDays(new Date(), 14),
     confidence: 91.3,
     day: 14,
-    total: 28
+    total: 28,
+    phase: 'follicular',
+    phaseDescription: 'follicular phase. Your energy should be rising.'
   });
 
   const [isAdjusting, setIsAdjusting] = useState(false);
   const [tempNextDate, setTempNextDate] = useState(() => format(addDays(new Date(), 14), 'yyyy-MM-dd'));
   const [tempCycleLength, setTempCycleLength] = useState(28);
+
+  // Helper function to calculate cycle phase
+  const calculatePhase = (lastPeriodDate: Date, cycleLength: number) => {
+    const now = new Date();
+    const daysSinceLastPeriod = Math.floor((now.getTime() - lastPeriodDate.getTime()) / (1000 * 60 * 60 * 24));
+    const dayInCycle = daysSinceLastPeriod % cycleLength;
+    
+    let phase = 'follicular';
+    let phaseDescription = 'follicular phase. Your energy should be rising.';
+    
+    if (dayInCycle < 5) {
+      phase = 'menstrual';
+      phaseDescription = 'menstrual phase. Rest and hydrate well.';
+    } else if (dayInCycle < 14) {
+      phase = 'follicular';
+      phaseDescription = 'follicular phase. Your energy should be rising.';
+    } else if (dayInCycle < 16) {
+      phase = 'ovulation';
+      phaseDescription = 'ovulation phase. You&apos;re at peak energy and fertility.';
+    } else if (dayInCycle < cycleLength) {
+      phase = 'luteal';
+      phaseDescription = 'luteal phase. Focus on self-care and nutrition.';
+    }
+
+    return {
+      phase,
+      phaseDescription,
+      day: dayInCycle + 1,
+      total: cycleLength
+    };
+  };
 
   useEffect(() => {
     if (!auth.currentUser) return;
@@ -59,7 +92,18 @@ export default function DashboardHome() {
                 const lastPeriod = data.lastPeriodDate.toDate();
                 const cycleLength = data.avgCycleLength || 28;
                 const nextDate = addDays(lastPeriod, cycleLength);
-                setPrediction(prev => ({ ...prev, nextDate }));
+                
+                // Calculate the current phase and day
+                const phaseInfo = calculatePhase(lastPeriod, cycleLength);
+                
+                setPrediction(prev => ({ 
+                  ...prev, 
+                  nextDate,
+                  phase: phaseInfo.phase,
+                  phaseDescription: phaseInfo.phaseDescription,
+                  day: phaseInfo.day,
+                  total: phaseInfo.total
+                }));
              }
         }
     };
@@ -174,8 +218,8 @@ export default function DashboardHome() {
 
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-storm-text">Hello, {userData?.name?.split(' ')[0] || 'User'}</h1>
-          <p className="text-storm-muted">You're in your follicular phase. Your energy should be rising.</p>
+          <h1 className="text-3xl font-serif text-storm-text">Hello, {userData?.displayName || userData?.name?.split(' ')[0] || 'User'}</h1>
+          <p className="text-storm-muted">You&apos;re in your {prediction.phaseDescription}</p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-storm-blush rounded-full text-storm-primary font-medium text-sm">
           <Sparkles size={16} /> Day {prediction.day} of {prediction.total}

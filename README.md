@@ -1,8 +1,7 @@
 ## 🌸 Project Banner
 
 <p align="center">
-  <img src="<img width="1366" height="631" alt="image" src="https://github.com/user-attachments/assets/0ea585d1-55e3-4038-b82c-bfd43104aab0" />
-" width="900"/>
+  <img src="https://github.com/user-attachments/assets/0ea585d1-55e3-4038-b82c-bfd43104aab0" width="900"/>
 </p>
 
 # 🌸 StormCycle — AI-Powered Menstrual Health Platform

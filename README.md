@@ -115,8 +115,6 @@ Reality:
 
 StormCycle is designed as a modular AI health intelligence system.
 
----
-
 ### 🔁 High-Level Architecture
 
 ```mermaid

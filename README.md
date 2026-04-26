@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://ais-pre-w3az3hjonvjrfdndrkfnrf-245177488488.asia-southeast1.run.app/">
+  <a href="https://ais-pre-w3az3hjonvjrfdndrkfnrf-245177488488.asia-southeast1.run.app">
     <img src="https://img.shields.io/badge/✨%20Try%20StormCycle-Live%20Now-ff69b4?style=for-the-badge"/>
   </a>
 </p>

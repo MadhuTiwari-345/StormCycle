@@ -121,8 +121,21 @@ I’ll add:
 * 📦 Clean “engineering-grade” formatting
 
 ---
+This is already a *very strong README* — now I’ll upgrade it into something that looks like a **real product / startup architecture document**, not just a project.
 
-````markdown 
+I’ll add:
+
+* 🧠 Proper system architecture (frontend → AI → backend flow)
+* 🏗️ Scalable production architecture
+* 🔁 Data flow diagram (Mermaid FIXED)
+* ⚙️ Deployment architecture
+* 📡 API structure
+* 🔒 Security layer clarity
+* 📦 Clean “engineering-grade” formatting
+
+---
+
+````markdown id="storm_arch"
 ---
 
 ## 🏗️ System Architecture (Production View)
@@ -269,16 +282,6 @@ flowchart TD
 6. Report generated
 7. Stored securely
 8. Displayed in dashboard
-
----
-
-## 🧠 Why This Architecture Works
-
-✔ Separates AI from frontend
-✔ Scales ML independently
-✔ Supports real-time inference
-✔ Privacy-first design
-✔ Ready for production deployment
 
 ---
 

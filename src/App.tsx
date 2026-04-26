@@ -33,13 +33,22 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // Hide splash after 2 seconds
+  // Hide splash after 1 second
   useEffect(() => {
     const timer = setTimeout(() => {
       console.log("[v0] Hiding splash screen");
       setShowSplash(false);
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Force hide if still showing after 3 seconds
+  useEffect(() => {
+    const forceTimer = setTimeout(() => {
+      console.log("[v0] Force hiding splash screen");
+      setShowSplash(false);
+    }, 3000);
+    return () => clearTimeout(forceTimer);
   }, []);
 
   if (showSplash) {

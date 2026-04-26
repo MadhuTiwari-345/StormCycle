@@ -32,21 +32,21 @@
 
 <p align="center">
   <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc893-c8b9-7382-bcbd-df6b8c4749ff/preview" width="48%"/>
-  <img src="assets/market.png" width="48%"/>
+  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc894-5073-70dc-bd07-046de1cdc9fa/preview" width="48%"/>
 </p>
 
 <p align="center">
-  <img src="assets/privacy.png" width="48%"/>
-  <img src="assets/pricing.png" width="48%"/>
+  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc894-87ff-7706-b277-72364e018a8d/preview" width="48%"/>
+  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc894-ca54-7085-b211-57e04f7ada0e/preview" width="48%"/>
 </p>
 
 <p align="center">
-  <img src="assets/faq.png" width="48%"/>
-  <img src="assets/cta.png" width="48%"/>
+  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc895-07d5-7004-9f30-8f2ff79634c5/preview" width="48%"/>
+  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc895-4bab-727b-98e7-584c29e1067e/preview" width="48%"/>
 </p>
 
 <p align="center">
-  <img src="assets/footer.png" width="90%"/>
+  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc895-7de1-7753-b23a-257b00048c71/preview" width="90%"/>
 </p>
 
 ---

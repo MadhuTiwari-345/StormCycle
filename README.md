@@ -27,6 +27,20 @@
 
 ---
 
+<p align="center">
+  <a href="https://drive.google.com/file/d/1ISJitRZAtxE0aGKPzpl1QFazrjh19vtm/view?usp=drive_link">
+    <img src="https://img.shields.io/badge/📊%20Pitch%20Deck-View%20PPT-ff9a9e?style=for-the-badge"/>
+  </a>
+  <a href="https://drive.google.com/file/d/1ajwa5DkCNv5XtcCIRlHmXzYTEj8snYzb/view?usp=drive_link">
+    <img src="https://img.shields.io/badge/🎤%20Pitch%20Video-Watch%20Now-6a11cb?style=for-the-badge"/>
+  </a>
+  <a href="https://drive.google.com/file/d/1D9s8OT8rKRuRhb1On_aFdKJLpfckxG3q/view?usp=drive_link">
+    <img src="https://img.shields.io/badge/🎬%20Product%20Demo-View%20Demo-00c9a7?style=for-the-badge"/>
+  </a>
+</p>
+
+---
+
 ## 🖼️ Product Preview
 
 <p align="center">

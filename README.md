@@ -31,22 +31,22 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/41ea4d39-7bad-464b-bd0e-9c506dbe0934"/>
-  <img src="https://github.com/user-attachments/assets/2b11ff30-242b-48c3-a85f-d1276a9f37ae"/>
+  <img src="https://github.com/user-attachments/assets/41ea4d39-7bad-464b-bd0e-9c506dbe0934" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/2b11ff30-242b-48c3-a85f-d1276a9f37ae" width="48%"/>
 </p>
 
 <p align="center">
-  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc894-87ff-7706-b277-72364e018a8d/preview" width="48%"/>
-  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc894-ca54-7085-b211-57e04f7ada0e/preview" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/452193f2-f9d3-4021-a9e7-ed7a3ae136bf" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/41fa3ece-9f1b-4651-9070-f477a7ce1ada" width="48%"/>
 </p>
 
 <p align="center">
-  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc895-07d5-7004-9f30-8f2ff79634c5/preview" width="48%"/>
-  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc895-4bab-727b-98e7-584c29e1067e/preview" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/1ad2c4ba-9014-4ed3-ab74-d7e63e44a055" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/f01a7706-b0f1-42ca-a74e-69e43b53aaca" width="48%"/>
 </p>
 
 <p align="center">
-  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc895-7de1-7753-b23a-257b00048c71/preview" width="90%"/>
+  <img src="https://github.com/user-attachments/assets/297400cb-48af-4835-9ea9-c44e4e646829" width="90%"/>
 </p>
 
 ---

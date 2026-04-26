@@ -1,4 +1,4 @@
-## 🌸 Project Banner
+<img width="1351" height="630" alt="image" src="https://github.com/user-attachments/assets/eb297dc8-820b-43b1-a46d-890d93c97a36" />## 🌸 Project Banner
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/0ea585d1-55e3-4038-b82c-bfd43104aab0" width="900"/>
@@ -31,8 +31,8 @@
 </p>
 
 <p align="center">
-  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc893-c8b9-7382-bcbd-df6b8c4749ff/preview" width="48%"/>
-  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc894-5073-70dc-bd07-046de1cdc9fa/preview" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/41ea4d39-7bad-464b-bd0e-9c506dbe0934"/>
+  <img src="https://github.com/user-attachments/assets/2b11ff30-242b-48c3-a85f-d1276a9f37ae"/>
 </p>
 
 <p align="center">

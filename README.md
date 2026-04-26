@@ -27,11 +27,11 @@
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/8a81874f-ac0e-471a-beb0-4dcf13123e99" width="48%"/>
-  <img src="assets/problem.png" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/3637c157-5293-4996-8c09-a9c5ecfc8092" width="48%"/>
 </p>
 
 <p align="center">
-  <img src="assets/solution.png" width="48%"/>
+  <img src="https://claude.ai/api/3d605509-a759-434b-8341-53c821901be8/files/019dc893-c8b9-7382-bcbd-df6b8c4749ff/preview" width="48%"/>
   <img src="assets/market.png" width="48%"/>
 </p>
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, limit, orderBy, onSnapshot, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
 import { DayPicker } from 'react-day-picker';
-import { format, addDays, isSameDay } from 'date-fns';
+import { format, addDays, isSameDay, differenceInDays } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 import { CycleLog } from '../../types';
 import { Calendar as CalendarIcon, Sparkles, Heart, Zap, History, ChevronRight, Activity, Moon } from 'lucide-react';
@@ -25,112 +25,89 @@ export default function DashboardHome() {
   const [userData, setUserData] = useState<any>(null);
   const [privateData, setPrivateData] = useState<any>(null);
 
-  const [prediction, setPrediction] = useState<any>(null);
+  const [prediction, setPrediction] = useState({
+    nextDate: addDays(new Date(), 14),
+    confidence: 91.3,
+    day: 14,
+    total: 28
+  });
 
   const [isAdjusting, setIsAdjusting] = useState(false);
   const [tempNextDate, setTempNextDate] = useState(() => format(addDays(new Date(), 14), 'yyyy-MM-dd'));
   const [tempCycleLength, setTempCycleLength] = useState(28);
 
-  // Helper function to calculate cycle phase
-  const calculatePhase = (lastPeriodDate: Date, cycleLength: number) => {
-    const now = new Date();
-    const daysSinceLastPeriod = Math.floor((now.getTime() - lastPeriodDate.getTime()) / (1000 * 60 * 60 * 24));
-    const dayInCycle = daysSinceLastPeriod % cycleLength;
-    
-    let phase = 'follicular';
-    let phaseDescription = 'follicular phase. Your energy should be rising.';
-    
-    if (dayInCycle < 5) {
-      phase = 'menstrual';
-      phaseDescription = 'menstrual phase. Rest and hydrate well.';
-    } else if (dayInCycle < 14) {
-      phase = 'follicular';
-      phaseDescription = 'follicular phase. Your energy should be rising.';
-    } else if (dayInCycle < 16) {
-      phase = 'ovulation';
-      phaseDescription = 'ovulation phase. You&apos;re at peak energy and fertility.';
-    } else if (dayInCycle < cycleLength) {
-      phase = 'luteal';
-      phaseDescription = 'luteal phase. Focus on self-care and nutrition.';
-    }
+  const getPhase = () => {
+    if (!prediction || !prediction.nextDate) return "Loading...";
+    const day = prediction.day;
+    if (day <= 5) return 'your menstrual phase';
+    if (day <= 13) return 'your follicular phase';
+    if (day <= 15) return 'your ovulatory phase';
+    return 'your luteal phase';
+  };
 
-    return {
-      phase,
-      phaseDescription,
-      day: dayInCycle + 1,
-      total: cycleLength
-    };
+  const getPhaseEnergy = () => {
+    const day = prediction.day;
+    if (day <= 5) return 'Rest and reflect.';
+    if (day <= 13) return 'Your energy should be rising.';
+    if (day <= 15) return 'You are at your peak energy.';
+    return 'Time to slow down.';
   };
 
   useEffect(() => {
-    if (!auth.currentUser) {
-      console.log("[v0] No current user");
-      return;
-    }
-
-    console.log("[v0] Dashboard: Loading data for user:", auth.currentUser.uid);
+    if (!auth.currentUser) return;
+    
+    // Reset state when user changes
+    setUserData(null);
+    setPrivateData(null);
+    setPrediction({
+      nextDate: addDays(new Date(), 14),
+      confidence: 91.3,
+      day: 14,
+      total: 28
+    });
+    setLoading(true);
 
     // Fetch user and profile data
     const fetchData = async () => {
         if (!auth.currentUser) return;
-        try {
-          const userRef = doc(db, 'users', auth.currentUser.uid);
-          const userSnap = await getDoc(userRef);
-          console.log("[v0] Dashboard: User document exists:", userSnap.exists());
-          console.log("[v0] Dashboard: User data:", userSnap.data());
-          
-          if (userSnap.exists()) {
-               setUserData(userSnap.data());
-          }
+        const userRef = doc(db, 'users', auth.currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+             setUserData(userSnap.data());
+        }
 
-          const profileRef = doc(db, 'users', auth.currentUser.uid, 'private', 'profile');
-          const profileSnap = await getDoc(profileRef);
-          console.log("[v0] Dashboard: Profile document exists:", profileSnap.exists());
-          console.log("[v0] Dashboard: Profile data:", profileSnap.data());
-          
-          if (profileSnap.exists()) {
-               const data = profileSnap.data();
-               setPrivateData(data);
-               if (data.lastPeriodDate) {
-                  const lastPeriod = data.lastPeriodDate.toDate();
-                  const cycleLength = data.avgCycleLength || 28;
-                  const nextDate = addDays(lastPeriod, cycleLength);
-                  
-                  console.log("[v0] Dashboard: Last period:", lastPeriod);
-                  console.log("[v0] Dashboard: Cycle length:", cycleLength);
-                  
-                  // Calculate the current phase and day
-                  const phaseInfo = calculatePhase(lastPeriod, cycleLength);
-                  console.log("[v0] Dashboard: Phase info:", phaseInfo);
-                  
-                  setPrediction(prev => ({ 
-                    ...prev, 
+        const profileRef = doc(db, 'users', auth.currentUser.uid, 'private', 'profile');
+        const profileSnap = await getDoc(profileRef);
+        if (profileSnap.exists()) {
+             const data = profileSnap.data();
+             setPrivateData(data);
+             if (data.lastPeriodDate) {
+                const lastPeriod = data.lastPeriodDate.toDate();
+                const cycleLength = data.avgCycleLength || 28;
+                const nextDate = addDays(lastPeriod, cycleLength);
+                
+                const dayDiff = Math.max(1, Math.min(cycleLength, differenceInDays(new Date(), lastPeriod) + 1));
+                
+                setPrediction({
                     nextDate,
-                    phase: phaseInfo.phase,
-                    phaseDescription: phaseInfo.phaseDescription,
-                    day: phaseInfo.day,
-                    total: phaseInfo.total
-                  }));
-               }
-          }
-        } catch (err) {
-          console.error("[v0] Dashboard: Error fetching data:", err);
+                    confidence: 91.3,
+                    day: dayDiff,
+                    total: cycleLength
+                });
+             }
         }
     };
     fetchData();
 
     // Check onboarding status
     const checkOnboarding = async () => {
-      try {
-        const userRef = doc(db, 'users', auth.currentUser!.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists() && !userSnap.data().onboardingCompleted) {
-          setShowOnboarding(true);
-        }
-      } catch (err) {
-        console.error("[v0] Dashboard: Error checking onboarding:", err);
+      const userRef = doc(db, 'users', auth.currentUser!.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists() && !userSnap.data().onboardingCompleted) {
+        setShowOnboarding(true);
       }
     };
+    
     checkOnboarding();
     
     const logsRef = collection(db, 'users', auth.currentUser.uid, 'cycleLogs');
@@ -144,13 +121,10 @@ export default function DashboardHome() {
       })) as CycleLog[];
       setLogs(data);
       setLoading(false);
-    }, (err) => {
-      console.error("[v0] Dashboard: Error fetching logs:", err);
-      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [auth.currentUser?.uid]);
 
   const handleOnboardingComplete = async () => {
     if (!auth.currentUser) return;
@@ -235,17 +209,13 @@ export default function DashboardHome() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-serif text-storm-text">
-            Hello, {userData?.name ? userData.name.split(' ')[0] : (auth.currentUser?.displayName ? auth.currentUser.displayName.split(' ')[0] : 'User')}
+            {userData ? `Hello, ${userData.name || 'User'}` : 'Welcome'}
           </h1>
-          <p className="text-storm-muted">
-            {prediction ? `You're in your ${prediction.phaseDescription}` : 'Loading your cycle information...'}
-          </p>
+          <p className="text-storm-muted">You're in {getPhase()}. {getPhaseEnergy()}</p>
         </div>
-        {prediction && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-storm-blush rounded-full text-storm-primary font-medium text-sm">
-            <Sparkles size={16} /> Day {prediction.day} of {prediction.total}
-          </div>
-        )}
+        <div className="flex items-center gap-2 px-4 py-2 bg-storm-blush rounded-full text-storm-primary font-medium text-sm">
+          <Sparkles size={16} /> Day {prediction.day} of {prediction.total}
+        </div>
       </header>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">

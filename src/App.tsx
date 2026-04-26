@@ -25,29 +25,12 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
-      console.log("[v0] Auth state changed:", u?.email || 'no user');
       setUser(u);
       setLoading(false);
-      // Hide splash after 1.5 seconds
-      setTimeout(() => {
-        console.log("[v0] Hiding splash screen");
-        setShowSplash(false);
-      }, 1500);
-    }, (error) => {
-      console.error("[v0] Auth error:", error);
-      setLoading(false);
-      setTimeout(() => setShowSplash(false), 1500);
+      // Keep splash for at least 2 seconds for aesthetic "warm up"
+      setTimeout(() => setShowSplash(false), 2000);
     });
     return () => unsubscribe();
-  }, []);
-
-  // Force hide splash after 3 seconds max
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      console.log("[v0] Force hiding splash after timeout");
-      setShowSplash(false);
-    }, 3000);
-    return () => clearTimeout(timer);
   }, []);
 
   return (

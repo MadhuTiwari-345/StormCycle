@@ -28,7 +28,7 @@ const suggestedPrompts = [
 export default function Chatbot() {
   const [allMessages, setAllMessages] = useState<Message[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string>(() => crypto.randomUUID());
-  const [showHistory, setShowHistory] = useState(true);
+  const [showHistory, setShowHistory] = useState(allMessages.length === 0);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -37,6 +37,10 @@ export default function Chatbot() {
   const [selectedContextLog, setSelectedContextLog] = useState<string | null>(null);
   const [availableLogs, setAvailableLogs] = useState<any[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    localStorage.setItem('chatSessionId', activeSessionId);
+  }, [activeSessionId]);
 
   useEffect(() => {
     if (!auth.currentUser) return;

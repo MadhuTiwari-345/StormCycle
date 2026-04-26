@@ -43,20 +43,25 @@ const questions = [
     fields: [
       { 
         id: 'acne', 
-        label: 'Acne severity (last 12 months)', 
+        label: 'Acne severity & type', 
         type: 'select', 
         options: [
           { label: 'None', value: 0 },
-          { label: 'Mild', value: 1 },
-          { label: 'Moderate', value: 2 },
-          { label: 'Significant', value: 3 }
+          { label: 'Mild (Face)', value: 1 },
+          { label: 'Moderate (Face, back)', value: 2 },
+          { label: 'Significant/Cystic (Face, chest, back)', value: 3 }
         ]
       },
       { 
         id: 'hirsutism', 
-        label: 'Excess facial/body hair', 
-        type: 'radio', 
-        options: [{label: 'Yes', value: true}, {label: 'No', value: false}]
+        label: 'Excess hair severity/areas', 
+        type: 'select', 
+        options: [
+          { label: 'None', value: 0 },
+          { label: 'Mild (Upper lip)', value: 1 },
+          { label: 'Moderate (Upper lip, chin)', value: 2 },
+          { label: 'Significant (Face, chest, back)', value: 3 }
+        ]
       }
     ]
   },
@@ -84,8 +89,8 @@ export default function PCODScreener() {
     menarche: 13,
     regularity: 'regular',
     acne: 0,
-    hirsutism: false,
-    family_history: 'no'
+    hirsutism: 0,
+    family_history: false
   });
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -107,28 +112,38 @@ export default function PCODScreener() {
   const submitScreening = async () => {
     setLoading(true);
     
-    // Logic: Simple weighted algorithm for MVP
+    // Updated weighted algorithm based on medical criteria
     let score = 0;
-    if (answers.regularity === 'irregular') score += 15;
-    if (answers.regularity === 'very_irregular') score += 25;
-    if (answers.acne > 1) score += 10;
-    if (answers.hirsutism) score += 15;
-    if (answers.family_history === true) score += 10;
+    // Regularity: heavier weight
+    if (answers.regularity === 'irregular') score += 20;
+    if (answers.regularity === 'very_irregular') score += 35;
+    
+    // Physical signs: androgenic markers
+    score += (answers.acne * 5); // 0, 5, 10, 15
+    score += (answers.hirsutism * 7); // 0, 7, 14, 21
+    
+    // Family history: heavier weight
+    if (answers.family_history === true) score += 15;
+    
+    // Metabolic
     const bmi = parseFloat(calculateBMI());
     if (bmi > 25) score += 10;
-    if (bmi > 30) score += 10;
-    if (answers.menarche < 11) score += 5;
+    if (bmi > 30) score += 15;
+    
+    // Menarche
+    if (answers.menarche < 12) score += 5;
 
-    const riskLevel = score < 25 ? 'low' : score < 50 ? 'moderate' : 'high';
+    // Adjusted thresholds: low < 30, moderate < 60, high >= 60
+    const riskLevel = score < 30 ? 'low' : score < 60 ? 'moderate' : 'high';
     const bmiStatus = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Normal' : bmi < 30 ? 'Overweight' : 'Obese';
     
     // Collect risks for the report
     const risks: string[] = [];
     if (answers.regularity !== 'regular') risks.push('Irregular menstrual cycles');
-    if (answers.acne > 1) risks.push('Moderate to significant acne');
-    if (answers.hirsutism) risks.push('Excess facial/body hair (Hirsutism)');
+    if (answers.acne > 0) risks.push('Active acne symptoms');
+    if (answers.hirsutism > 0) risks.push('Significant hair growth markers (Hirsutism)');
     if (answers.family_history === true) risks.push('Family history of PCOD/PCOS');
-    if (bmi > 25) risks.push('Elevated BMI (Weight-related risk)');
+    if (bmi > 25) risks.push('Elevated BMI (Metabolic risk)');
 
     const resultData = {
       answers,
@@ -291,7 +306,7 @@ Note: This is a screening tool, not a diagnostic report. Please consult a health
                           type="range" 
                           min={field.min} max={field.max}
                           value={answers[field.id]}
-                          onChange={e => setAnswers({...answers, [field.id]: parseInt(e.target.value)})}
+                          onChange={e => setAnswers({...answers, [field.id]: parseInt(e.target.value) || 0})}
                           className="w-full h-2 bg-storm-blush rounded-lg appearance-none cursor-pointer accent-storm-primary"
                         />
                         <div className="flex justify-between items-center">

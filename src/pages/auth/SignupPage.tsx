@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../lib/firebase';
 import { ArrowRight, ArrowLeft, Check, Search } from 'lucide-react';
 import StormLoader from '../../components/shared/StormLoader';
@@ -29,7 +29,7 @@ export default function SignupPage() {
     isRegular: 'yes'
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | JSX.Element>('');
+  const [error, setError] = useState<string | React.ReactNode>('');
   const navigate = useNavigate();
 
   const handleNext = () => setCurrentStep(prev => Math.min(prev + 1, 4));
@@ -104,6 +104,7 @@ export default function SignupPage() {
         await setDoc(doc(db, 'users', user.uid), {
           name: user.displayName || 'User',
           email: user.email,
+          preferredLanguage: 'en',
           onboardingCompleted: false,
           createdAt: serverTimestamp()
         });
@@ -243,7 +244,7 @@ export default function SignupPage() {
                       type="range" min="21" max="45"
                       className="w-full accent-storm-primary"
                       value={formData.avgCycle}
-                      onChange={e => setFormData({...formData, avgCycle: parseInt(e.target.value)})}
+                      onChange={e => setFormData({...formData, avgCycle: parseInt(e.target.value) || 28})}
                     />
                   </div>
                   <div>

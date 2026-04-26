@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { auth, db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { format } from 'date-fns';
 import { User, Globe, Bell, Lock, Trash2, Download, Save, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -12,7 +13,9 @@ export default function Settings() {
     name: auth.currentUser?.displayName || '',
     language: 'en',
     cycleReminders: true,
-    pcodRiskAlerts: true
+    pcodRiskAlerts: true,
+    lastPeriodDate: '',
+    avgCycleLength: 28
   });
 
   useEffect(() => {
@@ -26,6 +29,8 @@ export default function Settings() {
           ...prev,
           cycleReminders: data.cycleReminders !== false,
           pcodRiskAlerts: data.pcodRiskAlerts !== false,
+          lastPeriodDate: data.lastPeriodDate?.toDate ? format(data.lastPeriodDate.toDate(), 'yyyy-MM-dd') : (data.lastPeriodDate ? format(new Date(data.lastPeriodDate), 'yyyy-MM-dd') : ''),
+          avgCycleLength: data.avgCycleLength || 28,
         }));
       }
     };
@@ -38,23 +43,34 @@ export default function Settings() {
     try {
       if (auth.currentUser) {
         const userRef = doc(db, 'users', auth.currentUser.uid);
-        await updateDoc(userRef, {
-          name: formData.name,
+        const updateData: any = {
           preferredLanguage: formData.language
-        });
+        };
+        if (formData.name && formData.name.trim().length > 0) {
+          updateData.name = formData.name.trim();
+        }
+        console.log("About to setDoc (merge) users...", updateData);
+        await setDoc(userRef, updateData, { merge: true });
+        console.log("setDoc users successful.");
 
         // Save preferences to private profile
         const profileRef = doc(db, 'users', auth.currentUser.uid, 'private', 'profile');
-        await setDoc(profileRef, {
+        const profileUpdateData = {
           cycleReminders: formData.cycleReminders,
-          pcodRiskAlerts: formData.pcodRiskAlerts
-        }, { merge: true });
+          pcodRiskAlerts: formData.pcodRiskAlerts,
+          lastPeriodDate: formData.lastPeriodDate ? new Date(formData.lastPeriodDate) : null,
+          avgCycleLength: formData.avgCycleLength
+        };
+        console.log("About to setDoc private/profile...", profileUpdateData);
+        await setDoc(profileRef, profileUpdateData, { merge: true });
+        console.log("setDoc private/profile successful.");
 
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("FIREBASE ERROR:", err, err.message, err.code);
+      alert("Error: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -146,6 +162,28 @@ export default function Settings() {
                 <h2 className="text-xl font-serif mb-6">Application Preferences</h2>
                 
                 <div className="space-y-6">
+                  <div className="space-y-4">
+                     <h3 className="text-lg font-serif">Cycle Details</h3>
+                     <div className="space-y-2">
+                        <label className="text-sm font-medium text-storm-muted">Last Period Date</label>
+                        <input 
+                          type="date" 
+                          className="w-full p-4 bg-storm-cream border-none rounded-xl focus:ring-2 focus:ring-storm-primary outline-none"
+                          value={formData.lastPeriodDate}
+                          onChange={e => setFormData({...formData, lastPeriodDate: e.target.value})}
+                        />
+                     </div>
+                     <div className="space-y-2">
+                        <label className="text-sm font-medium text-storm-muted">Average Cycle Length (Days)</label>
+                        <input 
+                          type="number" 
+                          className="w-full p-4 bg-storm-cream border-none rounded-xl focus:ring-2 focus:ring-storm-primary outline-none"
+                          value={formData.avgCycleLength}
+                          onChange={e => setFormData({...formData, avgCycleLength: parseInt(e.target.value) || 28})}
+                        />
+                     </div>
+                  </div>
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-storm-muted flex items-center gap-2">
                       <Globe size={16} /> Preferred Language

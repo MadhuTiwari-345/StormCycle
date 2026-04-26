@@ -1,6 +1,11 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Connection test rule
+    match /_connection_test_/{testId} {
+      allow read: if true;
+    }
+
     // Default deny
     match /{document=**} {
       allow read, write: if false;
@@ -29,31 +34,39 @@ service cloud.firestore {
     // User document
     match /users/{userId} {
       function isValidUser(data, isCreate) {
-        let isNameValid = (data.name is string && data.name.size() > 0 && data.name.size() <= 100);
-        let isEmailValid = (data.email is string && data.email.size() > 0 && data.email.size() <= 200);
-        let isLangValid = (data.preferredLanguage in ['en', 'hi', 'ta', 'bn']);
+        let isNameValid = (!('name' in data) || data.name == null || (data.name is string && data.name.size() > 0 && data.name.size() <= 100));
+        let isEmailValid = (!('email' in data) || data.email == null || (data.email is string && data.email.size() > 0 && data.email.size() <= 200));
+        let isLangValid = (!('preferredLanguage' in data) || data.preferredLanguage == null || (data.preferredLanguage in ['en', 'hi', 'ta', 'bn']));
+        let isDobValid = (!('dateOfBirth' in data) || data.dateOfBirth == null || data.dateOfBirth is string);
+        let isOnboardingValid = (!('onboardingCompleted' in data) || data.onboardingCompleted == null || data.onboardingCompleted is bool);
 
         return isCreate 
-          ? (isNameValid && isEmailValid && isLangValid)
-          : (data.name == null || isNameValid) &&
-            (data.email == null || isEmailValid) &&
-            (data.preferredLanguage == null || isLangValid);
+          ? (('name' in data) && isNameValid && ('email' in data) && isEmailValid && ('preferredLanguage' in data) && isLangValid)
+          : (isNameValid && isEmailValid && isLangValid && isDobValid && isOnboardingValid);
       }
 
       allow get: if isOwner(userId);
       allow create: if isOwner(userId) && isValidUser(incoming(), true) && incoming().email == request.auth.token.email;
-      allow update: if isOwner(userId) && isValidUser(incoming(), false) && 
-                    incoming().diff(existing()).affectedKeys().hasOnly(['name', 'preferredLanguage', 'dateOfBirth', 'onboardingCompleted']);
+      allow update: if isOwner(userId) && isValidUser(incoming(), false);
+
+      // User settings
+      match /settings/{settingId} {
+        allow read, write: if isOwner(userId);
+      }
 
       // Private profile
       match /private/profile {
         function isValidProfile(data) {
-          return (data.height == null || data.height is number) &&
-                 (data.weight == null || data.weight is number) &&
-                 (data.avgCycleLength == null || data.avgCycleLength is int) &&
-                 (data.avgPeriodLength == null || data.avgPeriodLength is int);
+          return (!('height' in data) || data.height == null || data.height is number) &&
+                 (!('weight' in data) || data.weight == null || data.weight is number) &&
+                 (!('avgCycleLength' in data) || data.avgCycleLength == null || data.avgCycleLength is int || data.avgCycleLength is number) &&
+                 (!('avgPeriodLength' in data) || data.avgPeriodLength == null || data.avgPeriodLength is int || data.avgPeriodLength is number) &&
+                 (!('cycleReminders' in data) || data.cycleReminders == null || data.cycleReminders is bool) &&
+                 (!('pcodRiskAlerts' in data) || data.pcodRiskAlerts == null || data.pcodRiskAlerts is bool) &&
+                 (!('lastPeriodDate' in data) || data.lastPeriodDate == null || data.lastPeriodDate is timestamp);
         }
-        allow write: if isOwner(userId) && isValidProfile(incoming());
+        allow create, update: if isOwner(userId) && isValidProfile(incoming());
+        allow delete: if isOwner(userId);
         allow get: if isOwner(userId);
       }
 
@@ -61,8 +74,10 @@ service cloud.firestore {
       match /cycleLogs/{logId} {
         function isValidLog(data) {
           return data.date is timestamp &&
-                 (data.flowIntensity == null || data.flowIntensity in ['none', 'light', 'medium', 'heavy']) &&
-                 (data.symptoms == null || data.symptoms is list);
+                 (!('flowIntensity' in data) || data.flowIntensity in ['none', 'light', 'medium', 'heavy']) &&
+                 (!('isFirstDay' in data) || data.isFirstDay is bool) &&
+                 (!('symptoms' in data) || data.symptoms is list) &&
+                 (!('notes' in data) || data.notes is string);
         }
         allow list, delete: if isOwner(userId);
         allow get, create, update: if isOwner(userId) && isValidId(logId) && isValidLog(incoming());

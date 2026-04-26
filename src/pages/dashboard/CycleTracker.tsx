@@ -91,8 +91,36 @@ export default function CycleTracker() {
         counts[s] = (counts[s] || 0) + 1;
       });
     });
-    return Object.entries(counts).map(([name, count]) => ({ name, count }));
+    return Object.entries(counts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
   };
+
+  const getSymptomPattern = () => {
+    // Take the last 10 logs and reverse them so chronological
+    const recentLogs = [...logs].slice(0, 10).reverse();
+    return recentLogs.map((log) => {
+      // Format date if possible
+      let dateString = '';
+      if (log.date && typeof log.date.toDate === 'function') {
+        const d = log.date.toDate();
+        dateString = `${d.getDate()}/${d.getMonth() + 1}`;
+      } else if (log.date) {
+        // Fallback for string dates if any or other formats
+        const d = new Date(log.date);
+        if (!isNaN(d.getTime())) {
+          dateString = `${d.getDate()}/${d.getMonth() + 1}`;
+        }
+      }
+      return {
+        date: dateString || 'Log',
+        intensity: log.symptomIntensity || 0,
+        energy: log.energyLevel || 0
+      };
+    });
+  };
+
+  const dynamicSymptomPattern = getSymptomPattern();
 
   const frequencyData = getSymptomFrequency();
 
@@ -229,34 +257,41 @@ export default function CycleTracker() {
             {/* Symptom Pattern Chart */}
             <section className="bg-white p-6 rounded-3xl border border-storm-border shadow-sm">
               <h3 className="text-lg font-serif mb-6">Symptom vs Energy Intensity</h3>
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={symptomPattern}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8D5DF" />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#8A6070', fontSize: 12}} label={{value: 'Cycle Day', position: 'insideBottom', offset: -5}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#8A6070', fontSize: 12}} hide />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="cramps" stroke="#DC2626" strokeWidth={2} dot={false} strokeDasharray="5 5" />
-                    <Line type="monotone" dataKey="energy" stroke="#F59E0B" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
+              <div className="h-64 min-h-[256px] w-full min-w-0">
+                {dynamicSymptomPattern.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                    <LineChart data={dynamicSymptomPattern}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8D5DF" />
+                      <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#8A6070', fontSize: 12}} label={{value: 'Date', position: 'insideBottom', offset: -5}} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#8A6070', fontSize: 12}} hide />
+                      <Tooltip />
+                      <Line name="Symptom Intensity" type="monotone" dataKey="intensity" stroke="#DC2626" strokeWidth={2} dot={true} strokeDasharray="5 5" />
+                      <Line name="Energy Level" type="monotone" dataKey="energy" stroke="#F59E0B" strokeWidth={2} dot={true} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-2 p-6 text-center border-2 border-dashed border-storm-border rounded-2xl w-full h-full bg-storm-cream/30">
+                    <Sparkles className="text-storm-muted" size={24} />
+                    <p className="text-sm text-storm-muted italic max-w-[200px]">Log some symptoms to unlock your personal health patterns.</p>
+                  </div>
+                )}
               </div>
               <div className="mt-4 flex justify-center gap-6 text-xs font-medium">
-                <div className="flex items-center gap-1.5"><div className="w-3 h-0.5 bg-red-600 border-dashed border-t border-red-600"></div> Cramps</div>
+                <div className="flex items-center gap-1.5"><div className="w-3 h-0.5 bg-red-600 border-dashed border-t border-red-600"></div> Symptom Intensity</div>
                 <div className="flex items-center gap-1.5"><div className="w-3 h-0.5 bg-amber-500"></div> Energy</div>
               </div>
             </section>
 
             {/* Symptom Frequency Chart */}
-            <section className="bg-white p-6 rounded-3xl border border-storm-border shadow-sm">
+            <section className="bg-white p-6 rounded-3xl border border-storm-border shadow-sm flex flex-col">
               <h3 className="text-lg font-serif mb-6">Symptom Frequency</h3>
-              <div className="h-64 w-full flex items-center justify-center">
+              <div className="h-64 min-h-[256px] w-full min-w-0 flex-1 flex items-center justify-center">
                 {frequencyData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <BarChart data={frequencyData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8D5DF" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#8A6070', fontSize: 10}} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#8A6070', fontSize: 12}} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#8A6070', fontSize: 10}} interval={0} angle={-35} textAnchor="end" height={60} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#8A6070', fontSize: 12}} allowDecimals={false} />
                       <Tooltip />
                       <Bar dataKey="count" fill="#6B1A3A" radius={[8, 8, 0, 0]} />
                     </BarChart>

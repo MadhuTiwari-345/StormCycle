@@ -70,8 +70,8 @@ export default function Chatbot() {
   const sortedSessionIds = Object.keys(groupedSessions).sort((a, b) => {
     const lastA = groupedSessions[a][groupedSessions[a].length - 1];
     const lastB = groupedSessions[b][groupedSessions[b].length - 1];
-    const timeA = lastA?.createdAt?.toMillis() || 0;
-    const timeB = lastB?.createdAt?.toMillis() || 0;
+    const timeA = lastA?.createdAt?.toMillis?.() || Date.now();
+    const timeB = lastB?.createdAt?.toMillis?.() || Date.now();
     return timeB - timeA;
   });
 
@@ -182,7 +182,7 @@ export default function Chatbot() {
 
     try {
       const response = await genAI.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: `Analyze this user text: "${text}". Which language is it mainly written or spoken in? If it is Hindi (hi), Tamil (ta), Bengali (bn), or English (en), return ONLY the 2-letter code (en, hi, ta, or bn). If you are unsure, return en. Do not return anything else.`
       });
       const code = response.text?.trim().toLowerCase();
@@ -240,9 +240,6 @@ export default function Chatbot() {
     setLoading(true);
 
     try {
-      // Auto-detect language
-      const detectedLang = await detectAndUpdateLanguage(userMsg);
-
       // 1. Save user message to Firestore
       let fullMessage = userMsg;
       if (selectedContextLog) {
@@ -283,27 +280,34 @@ export default function Chatbot() {
         5. Actionable & Personalized Advice: Provide precise, useful health tips and gentle recommendations based directly on the provided user context (e.g., current cycle phase, logged symptoms, PCOD risk level). Connect tips to evidence-based advice and link to reputable external resources (like WHO, Mayo Clinic, FOGSI).
         6. Data Recall: If the user asks about their recent logged symptoms, energy, mood, or cycle data, answer accurately using the "Recent cycle logs" provided in the context.
         7. Phase Analysis: Read the 'Estimated Phase' and 'Recent cycle logs'. If a user asks why they feel a certain way today, check their current phase and suggest phase-specific hormonal reasons (e.g. low energy due to progesterone drop before menstruation, high energy in follicular).
-        8. Language: Respond ONLY in the user's requested language (${detectedLang === 'hi' ? 'Hindi' : detectedLang === 'ta' ? 'Tamil' : detectedLang === 'bn' ? 'Bengali' : 'English'}). Do not mix languages unless completely necessary for medical terms.
+        8. Language: Reply in the SAME language as the user's most recent message. Maintain the user's language unless they specifically ask to switch. If they type in Hinglish, reply gently in Hindi or English as appropriate.
         9. Concision: Keep responses clear and concise (use bullet points if helpful), unless detailed info is requested.
 
         Current context: 
         ${contextData}
       `;
 
-      const result = await genAI.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: userMsg,
+      const response = await genAI.models.generateContent({
+        model: "gemini-3.1-pro-preview",
+        contents: [
+          ...messages.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'model' as any,
+            parts: [{ text: msg.content }]
+          })),
+          { role: 'user', parts: [{ text: userMsg }] }
+        ],
         config: {
           systemInstruction: systemPrompt
         }
       });
-      const response = result.text;
+      
+      const aiResponseText = response.text || "I'm sorry, I couldn't process that.";
 
       // 3. Save AI response
       try {
         await addDoc(messagesRef, {
           role: 'assistant',
-          content: response,
+          content: aiResponseText,
           language,
           sessionId: activeSessionId,
           createdAt: serverTimestamp()
@@ -460,7 +464,7 @@ export default function Chatbot() {
                     </div>
                     <div className="text-[10px] text-storm-muted flex items-center justify-between">
                        <span>{sessionMessages.length} messages</span>
-                       <span>{latestTime ? new Date(latestTime.toMillis()).toLocaleString() : 'Unknown Time'}</span>
+                       <span>{latestTime?.toMillis ? new Date(latestTime.toMillis()).toLocaleString() : 'Unknown Time'}</span>
                     </div>
                   </button>
                 );

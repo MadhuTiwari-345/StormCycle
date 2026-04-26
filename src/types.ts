@@ -26,6 +26,7 @@ export interface CycleLog {
   isFirstDay: boolean;
   flowIntensity?: 'none' | 'light' | 'medium' | 'heavy';
   symptoms: string[];
+  symptomIntensity?: number;
   mood?: string;
   energyLevel?: number;
   notes?: string;
@@ -37,6 +38,12 @@ export interface PCODScreening {
   riskScore: number;
   riskLevel: 'low' | 'moderate' | 'high';
   breakdown: Record<string, number>;
+  details?: {
+    bmi?: string;
+    bmiStatus?: string;
+    risks?: string[];
+    severities?: Record<string, number>;
+  };
   createdAt: Date;
 }
 

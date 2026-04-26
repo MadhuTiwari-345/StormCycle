@@ -13,8 +13,10 @@ import {
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { auth } from '../../lib/firebase';
+import { auth, db } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
+import { collection, query, orderBy, limit, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import { format, differenceInDays, addDays, isSameDay } from 'date-fns';
 import Logo from '../../components/layout/Logo';
 
 const navItems = [
@@ -26,18 +28,93 @@ const navItems = [
   { path: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
 
-// Mock notifications
-const MOCK_NOTIFICATIONS = [
-  { id: 1, title: 'Cycle approaching', message: 'Your next cycle is predicted to start in 3 days.', time: '2 hours ago', read: false },
-  { id: 2, title: 'Report ready', message: 'Your monthly wellness report is generated.', time: '1 day ago', read: true },
-];
-
 export default function DashboardLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<{id: number, title: string, message: string, time: string, read: boolean}[]>([]);
   const navigate = useNavigate();
   const notifRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!auth.currentUser) return;
+    
+    // Fetch logs to build notifications
+    const logsRef = collection(db, 'users', auth.currentUser.uid, 'cycleLogs');
+    const q = query(logsRef, orderBy('date', 'desc'), limit(1));
+    
+    let dbUnsubscribe = onSnapshot(q, async (snapshot) => {
+       const userSnap = await getDoc(doc(db, 'users', auth.currentUser!.uid, 'private', 'profile'));
+       const profileData = userSnap.exists() ? userSnap.data() : null;
+       
+       let dynamicNotifs = [];
+       
+       if (profileData && profileData.lastPeriodDate) {
+          const lpDate = profileData.lastPeriodDate.toDate ? profileData.lastPeriodDate.toDate() : new Date(profileData.lastPeriodDate);
+          const cycleLen = profileData.avgCycleLength || 28;
+          
+          let nextDate = addDays(lpDate, cycleLen);
+          const today = new Date();
+          if (nextDate < today) {
+             const daysSinceLastPeriod = differenceInDays(today, lpDate);
+             const completedCycles = Math.floor(daysSinceLastPeriod / cycleLen);
+             nextDate = addDays(lpDate, cycleLen * (completedCycles + 1));
+          }
+          
+          const diffDays = differenceInDays(nextDate, today);
+          
+          if (diffDays <= 3 && diffDays >= 0) {
+              dynamicNotifs.push({
+                 id: 1,
+                 title: 'Cycle approaching',
+                 message: `Your next cycle is predicted to start in ${diffDays === 0 ? 'today' : diffDays + ' day(s)'}.`,
+                 time: 'Just now',
+                 read: false
+              });
+          } else {
+              dynamicNotifs.push({
+                 id: 1,
+                 title: 'Cycle update',
+                 message: `Your next cycle is predicted to start on ${format(nextDate, 'MMM d')}.`,
+                 time: 'Just now',
+                 read: true
+              });
+          }
+       }
+
+       let loggedToday = false;
+       if (!snapshot.empty) {
+          const latestLog = snapshot.docs[0].data();
+          const logDate = latestLog.date?.toDate ? latestLog.date.toDate() : new Date(latestLog.date);
+          if (isSameDay(logDate, new Date())) {
+             loggedToday = true;
+          }
+       }
+       
+       if (!loggedToday && new Date().getHours() > 18) {
+          dynamicNotifs.push({
+             id: 2,
+             title: 'Time to log',
+             message: 'You have not logged your symptoms today. Track them now!',
+             time: 'Daily reminder',
+             read: false
+          });
+       }
+       
+       if (dynamicNotifs.length === 0) {
+           dynamicNotifs.push({
+               id: 3,
+               title: 'Welcome to Storm',
+               message: 'Your wellness dashboard is up to date.',
+               time: 'Today',
+               read: true
+           });
+       }
+       
+       setNotifications(dynamicNotifs);
+    });
+
+    return () => dbUnsubscribe();
+  }, [auth.currentUser?.uid]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

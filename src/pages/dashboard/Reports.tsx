@@ -21,7 +21,7 @@ export default function Reports() {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date()
+        createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : new Date()
       })) as PCODScreening[];
       setReports(data);
       setLoading(false);
@@ -29,6 +29,64 @@ export default function Reports() {
 
     return () => unsubscribe();
   }, []);
+
+  const handleShare = async (report: PCODScreening) => {
+    const text = `StormCycle Health Report\nDate: ${format(report.createdAt, 'MMMM d, yyyy')}\nRisk Level: ${report.riskLevel.toUpperCase()}\nBMI: ${report.details?.bmi || 'N/A'}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'StormCycle Health Report',
+          text: text,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('Report summary copied to clipboard!');
+      } catch (err) {
+        console.error('Clipboard error:', err);
+      }
+    }
+  };
+
+  const handleDownload = (report: PCODScreening) => {
+    const content = `
+STORM CYCLE - HEALTH REPORT
+===========================
+Date: ${format(report.createdAt, 'MMMM d, yyyy')}
+Risk Level: ${report.riskLevel.toUpperCase()}
+Risk Score: ${report.riskScore}/10
+
+VITAL METRICS:
+--------------
+BMI: ${report.details?.bmi || 'N/A'} (${report.details?.bmiStatus || 'N/A'})
+Cycle Regularity: ${report.details?.risks?.includes('Irregular period') ? 'Irregular' : 'Normal'}
+
+REPORTED SYMPTOMS & RISKS:
+--------------------------
+${report.details?.risks?.map((r: string) => `- ${r}`).join('\n') || 'None reported'}
+
+SYMPTOM SEVERITY:
+-----------------
+${Object.entries(report.details?.severities || {}).map(([key, val]) => `${key}: ${val}/10`).join('\n')}
+
+Notes: This report is generated based on self-reported data and is not a clinical diagnosis. Please consult a healthcare professional.
+    `;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Storm_Report_${format(report.createdAt, 'yyyy-MM-dd')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-8">
@@ -89,10 +147,16 @@ export default function Reports() {
                 </div>
 
                 <div className="mt-auto flex gap-2 pt-4 border-t border-storm-cream">
-                  <button className="flex-1 py-2.5 bg-storm-primary text-white rounded-xl text-xs font-medium flex items-center justify-center gap-2 hover:bg-storm-secondary transition-colors">
+                  <button 
+                    onClick={() => handleDownload(report)}
+                    className="flex-1 py-2.5 bg-storm-primary text-white rounded-xl text-xs font-medium flex items-center justify-center gap-2 hover:bg-storm-secondary transition-colors"
+                  >
                     <Download size={14} /> Download
                   </button>
-                  <button className="p-2.5 border border-storm-border rounded-xl text-storm-muted hover:bg-storm-cream transition-colors">
+                  <button 
+                    onClick={() => handleShare(report)}
+                    className="p-2.5 border border-storm-border rounded-xl text-storm-muted hover:bg-storm-cream transition-colors"
+                  >
                     <Share2 size={16} />
                   </button>
                 </div>

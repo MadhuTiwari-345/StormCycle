@@ -2,7 +2,7 @@
 ## 🌸 Project Banner
 
 <p align="center">
-  <img src="https://your-cdn-or-repo/banner.gif" width="900"/>
+  <img src="https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif" width="200"/>
 </p>
 
 # 🌸 StormCycle — AI-Powered Menstrual Health Platform

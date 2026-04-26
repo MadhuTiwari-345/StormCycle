@@ -1,7 +1,9 @@
 
 ## 🌸 Project Banner
 
-
+<p align="center">
+  <img src="" width="900"/>
+</p>
 
 # 🌸 StormCycle — AI-Powered Menstrual Health Platform
 

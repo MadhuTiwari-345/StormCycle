@@ -18,18 +18,44 @@ import Settings from './pages/dashboard/Settings';
 export default function App() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      console.log("[v0] Auth state changed:", u?.email || 'no user');
-      setUser(u);
+    console.log("[v0] App: Initializing auth");
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (u) => {
+        console.log("[v0] Auth state changed:", u?.email || 'no user');
+        setUser(u);
+        setLoading(false);
+      }, (err) => {
+        console.error("[v0] Auth error:", err);
+        setError(err.message);
+        setLoading(false);
+      });
+      return () => unsubscribe();
+    } catch (err: any) {
+      console.error("[v0] App initialization error:", err);
+      setError(err.message);
       setLoading(false);
-    }, (error) => {
-      console.error("[v0] Auth error:", error);
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    }
   }, []);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-red-50 p-4">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading App</h1>
+          <p className="text-gray-700 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            Reload Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>

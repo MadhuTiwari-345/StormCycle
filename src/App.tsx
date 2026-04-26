@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from './lib/firebase';
-import StormLoader from './components/shared/StormLoader';
 
 // Pages
 import LandingPage from './pages/marketing/LandingPage';
@@ -19,7 +18,6 @@ import Settings from './pages/dashboard/Settings';
 export default function App() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -32,28 +30,6 @@ export default function App() {
     });
     return () => unsubscribe();
   }, []);
-
-  // Hide splash after 1 second
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      console.log("[v0] Hiding splash screen");
-      setShowSplash(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Force hide if still showing after 3 seconds
-  useEffect(() => {
-    const forceTimer = setTimeout(() => {
-      console.log("[v0] Force hiding splash screen");
-      setShowSplash(false);
-    }, 3000);
-    return () => clearTimeout(forceTimer);
-  }, []);
-
-  if (showSplash) {
-    return <StormLoader isFullPage key="splash" />;
-  }
 
   return (
     <BrowserRouter>

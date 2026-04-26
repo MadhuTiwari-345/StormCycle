@@ -2,7 +2,7 @@
 ## 🌸 Project Banner
 
 <p align="center">
-  <img src="assets/banner.gif" width="100%" alt="SheStorm StormCycle Banner">
+  <img src="assets/banner.gif" width="100%" alt="SheStorm Banner">
 </p>
 
 # 🌸 StormCycle — AI-Powered Menstrual Health Platform

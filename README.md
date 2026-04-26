@@ -108,6 +108,183 @@ Reality:
 - Based on ACOG, NHS, NIH  
 - Context-aware responses  
 - Human escalation for risk cases  
+This is already a *very strong README* — now I’ll upgrade it into something that looks like a **real product / startup architecture document**, not just a project.
+
+I’ll add:
+
+* 🧠 Proper system architecture (frontend → AI → backend flow)
+* 🏗️ Scalable production architecture
+* 🔁 Data flow diagram (Mermaid FIXED)
+* ⚙️ Deployment architecture
+* 📡 API structure
+* 🔒 Security layer clarity
+* 📦 Clean “engineering-grade” formatting
+
+---
+
+````markdown 
+---
+
+## 🏗️ System Architecture (Production View)
+
+StormCycle is designed as a **modular AI health intelligence system** with separated concerns for scalability, privacy, and real-time inference.
+
+---
+
+### 🔁 High-Level Architecture
+
+```mermaid
+flowchart TD
+    A["👩 User Input (Cycle Data)"] --> B["🌐 Frontend (React / UI)"]
+
+    B --> C["⚙️ API Gateway (FastAPI)"]
+
+    C --> D["🧠 AI Engine Layer"]
+
+    D --> D1["🔮 LSTM Prediction Model"]
+    D --> D2["🩺 Bayesian PCOD Model"]
+    D --> D3["🤖 RAG Health Assistant"]
+
+    D1 --> E["📊 Insight Generator"]
+    D2 --> E
+    D3 --> E
+
+    E --> F["📄 Report Builder"]
+
+    F --> G["🔐 Secure Storage (Firestore)"]
+
+    G --> H["📱 Dashboard Output"]
+````
+
+---
+
+## ⚙️ Backend Architecture
+
+### 🧠 AI Processing Layer
+
+* LSTM model for cycle forecasting
+* Bayesian inference for PCOD probability
+* RAG-based medical assistant (ACOG / NIH / NHS knowledge base)
+
+### ⚡ API Layer (FastAPI)
+
+Handles:
+
+* User cycle data ingestion
+* Model inference calls
+* Report generation
+* Authentication middleware
+
+---
+
+## 🎨 Frontend Architecture
+
+### 📱 User Interface Flow
+
+```text
+Login → Input Cycle Data → AI Analysis → Health Dashboard → Report Export
+```
+
+### UI Modules:
+
+* 📅 Cycle Tracker UI
+* 📊 Prediction Dashboard
+* 🩺 PCOD Risk Panel
+* 🤖 AI Chat Assistant
+* 📄 Report Generator
+
+---
+
+## 🧠 AI Model Architecture
+
+```mermaid
+flowchart LR
+    A["📊 Historical Cycle Data"] --> B["🧹 Preprocessing Layer"]
+
+    B --> C["🔮 LSTM Model"]
+    B --> D["🩺 Bayesian Model"]
+
+    C --> E["📈 Cycle Prediction"]
+    D --> F["⚠️ Risk Probability"]
+
+    E --> G["🧠 Fusion Engine"]
+    F --> G
+
+    G --> H["📄 Final Health Score"]
+```
+
+---
+
+## 🔐 Security Architecture
+
+StormCycle follows **health-grade data protection standards**:
+
+### 🛡️ Security Layers
+
+* AES-256 encryption (data at rest)
+* TLS 1.3 (data in transit)
+* JWT authentication
+* Role-based access control
+* Optional zk-SNARK privacy layer
+
+---
+
+## ☁️ Deployment Architecture
+
+```mermaid
+flowchart TD
+    A["Frontend (Vercel / Netlify)"]
+    B["Backend (FastAPI - Cloud Run / AWS)"]
+    C["Database (Firebase / Firestore)"]
+    D["AI Models (Server-side GPU optional)"]
+
+    A --> B
+    B --> C
+    B --> D
+    D --> B
+```
+
+---
+
+## 📡 API Structure
+
+### 🔹 Core Endpoints
+
+| Endpoint         | Function               |
+| ---------------- | ---------------------- |
+| `/predict-cycle` | LSTM prediction        |
+| `/pcod-risk`     | Bayesian risk score    |
+| `/health-report` | Full report generation |
+| `/chat`          | AI assistant (RAG)     |
+
+---
+
+## 📊 Data Flow (End-to-End)
+
+1. User enters cycle data
+2. Frontend sends structured payload
+3. FastAPI validates request
+4. AI models run inference
+5. Results merged in fusion engine
+6. Report generated
+7. Stored securely
+8. Displayed in dashboard
+
+---
+
+## 🧠 Why This Architecture Works
+
+✔ Separates AI from frontend
+✔ Scales ML independently
+✔ Supports real-time inference
+✔ Privacy-first design
+✔ Ready for production deployment
+
+---
+
+## 🚀 System Design Summary
+
+> StormCycle is not a monolithic app — it is a **modular AI healthcare intelligence system** designed for real-world clinical scalability.
 
 ---
 

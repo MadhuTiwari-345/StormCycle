@@ -1,9 +1,7 @@
 
 ## 🌸 Project Banner
 
-<p align="center">
-  <img src="https://banner-gif.my.canva.site/" width="100%"/>
-</p>
+
 
 # 🌸 StormCycle — AI-Powered Menstrual Health Platform
 
@@ -33,6 +31,26 @@
   <img src="https://github.com/user-attachments/assets/8a81874f-ac0e-471a-beb0-4dcf13123e99" width="48%"/>
   <img src="https://github.com/user-attachments/assets/3637c157-5293-4996-8c09-a9c5ecfc8092" width="48%"/>
 </p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/41ea4d39-7bad-464b-bd0e-9c506dbe0934" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/2b11ff30-242b-48c3-a85f-d1276a9f37ae" width="48%"/>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/452193f2-f9d3-4021-a9e7-ed7a3ae136bf" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/41fa3ece-9f1b-4651-9070-f477a7ce1ada" width="48%"/>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1ad2c4ba-9014-4ed3-ab74-d7e63e44a055" width="48%"/>
+  <img src="https://github.com/user-attachments/assets/f01a7706-b0f1-42ca-a74e-69e43b53aaca" width="48%"/>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/297400cb-48af-4835-9ea9-c44e4e646829" width="90%"/>
+</p>
+
 
 ---
 

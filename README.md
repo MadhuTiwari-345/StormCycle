@@ -1,4 +1,4 @@
-<img width="1351" height="630" alt="image" src="https://github.com/user-attachments/assets/eb297dc8-820b-43b1-a46d-890d93c97a36" />## 🌸 Project Banner
+## 🌸 Project Banner
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/0ea585d1-55e3-4038-b82c-bfd43104aab0" width="900"/>

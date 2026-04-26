@@ -107,40 +107,13 @@ Reality:
 ### 🤖 AI Health Assistant
 - Based on ACOG, NHS, NIH  
 - Context-aware responses  
-- Human escalation for risk cases  
-This is already a *very strong README* — now I’ll upgrade it into something that looks like a **real product / startup architecture document**, not just a project.
-
-I’ll add:
-
-* 🧠 Proper system architecture (frontend → AI → backend flow)
-* 🏗️ Scalable production architecture
-* 🔁 Data flow diagram (Mermaid FIXED)
-* ⚙️ Deployment architecture
-* 📡 API structure
-* 🔒 Security layer clarity
-* 📦 Clean “engineering-grade” formatting
-
----
-This is already a *very strong README* — now I’ll upgrade it into something that looks like a **real product / startup architecture document**, not just a project.
-
-I’ll add:
-
-* 🧠 Proper system architecture (frontend → AI → backend flow)
-* 🏗️ Scalable production architecture
-* 🔁 Data flow diagram (Mermaid FIXED)
-* ⚙️ Deployment architecture
-* 📡 API structure
-* 🔒 Security layer clarity
-* 📦 Clean “engineering-grade” formatting
-
----
-
-````markdown id="storm_arch"
+- Human escalation for risk cases
+  
 ---
 
 ## 🏗️ System Architecture (Production View)
 
-StormCycle is designed as a **modular AI health intelligence system** with separated concerns for scalability, privacy, and real-time inference.
+StormCycle is designed as a modular AI health intelligence system.
 
 ---
 
@@ -148,26 +121,23 @@ StormCycle is designed as a **modular AI health intelligence system** with separ
 
 ```mermaid
 flowchart TD
-    A["👩 User Input (Cycle Data)"] --> B["🌐 Frontend (React / UI)"]
+    A[User Input Cycle Data] --> B[Frontend React UI]
+    B --> C[API Gateway FastAPI]
 
-    B --> C["⚙️ API Gateway (FastAPI)"]
+    C --> D[AI Engine Layer]
 
-    C --> D["🧠 AI Engine Layer"]
+    D --> D1[LSTM Prediction Model]
+    D --> D2[Bayesian PCOD Model]
+    D --> D3[RAG Health Assistant]
 
-    D --> D1["🔮 LSTM Prediction Model"]
-    D --> D2["🩺 Bayesian PCOD Model"]
-    D --> D3["🤖 RAG Health Assistant"]
-
-    D1 --> E["📊 Insight Generator"]
+    D1 --> E[Insight Generator]
     D2 --> E
     D3 --> E
 
-    E --> F["📄 Report Builder"]
-
-    F --> G["🔐 Secure Storage (Firestore)"]
-
-    G --> H["📱 Dashboard Output"]
-````
+    E --> F[Report Builder]
+    F --> G[Secure Storage Firestore]
+    G --> H[Dashboard Output]
+```
 
 ---
 

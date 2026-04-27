@@ -1,11 +1,10 @@
 
-## 🌸 Project Banner
+## 🌸 StormCycle — AI-Powered Menstrual Health Platform
 
 <p align="center">
   <img src="assets/banner.gif" width="100%" alt="SheStorm Banner">
 </p>
 
-# 🌸 StormCycle — AI-Powered Menstrual Health Platform
 
 <p align="center">
   <b>Clinical-grade cycle tracking & PCOD screening built for real-world irregular cycles.</b>

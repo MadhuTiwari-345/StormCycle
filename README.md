@@ -386,7 +386,7 @@ It is a **personalized clinical intelligence system** that bridges:
 ---
 
 <p align="center">
-  Built with ❤️ by <b>Madhu Tiwari</b>
+  Built with ❤️ by <b>Madhu Tiwari - Team 🌸 SheStorm 🌸</b>
 </p>
 
 ---

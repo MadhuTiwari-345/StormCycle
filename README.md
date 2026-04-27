@@ -391,3 +391,6 @@ It is a **personalized clinical intelligence system** that bridges:
 
 ---
 
+<p align="center">
+  <img src="assets/banner.gif" width="100%" alt="SheStorm Banner">
+</p>

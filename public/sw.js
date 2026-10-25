@@ -1,22 +1,24 @@
-const CACHE_NAME = 'storm-v1';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest'
-];
+const CACHE_NAME = 'storm-v2';
 
 self.addEventListener('install', (event) => {
+  // Activate the updated worker immediately so old cached app shells are replaced.
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
+  // Always fetch navigations from the network. Caching index.html can leave users
+  // with old Vite asset hashes after a deployment, producing a blank page (404s).
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/index.html'))
+    );
+  }
 });

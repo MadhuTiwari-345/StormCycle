@@ -8,7 +8,10 @@ import ReactMarkdown from 'react-markdown';
 
 import StormLoader from '../../components/shared/StormLoader';
 
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const geminiApiKey = process.env.GEMINI_API_KEY;
+// Do not initialize the SDK with an empty key: that throws during module loading
+// and prevents the entire app from rendering on hosts without this secret configured.
+const genAI = geminiApiKey ? new GoogleGenAI({ apiKey: geminiApiKey }) : null;
 
 interface Message {
   id: string;
@@ -178,7 +181,7 @@ export default function Chatbot() {
   };
 
   const detectAndUpdateLanguage = async (text: string) => {
-    if (!isAutoDetect) return language;
+    if (!isAutoDetect || !genAI) return language;
 
     try {
       const response = await genAI.models.generateContent({
@@ -234,6 +237,10 @@ export default function Chatbot() {
 
   const handleSend = async (text: string = input) => {
     if (!text.trim() || !auth.currentUser) return;
+    if (!genAI) {
+      alert('Storm AI is not configured on this deployment yet. The rest of StormCycle is available, but AI chat needs a Gemini API key configured in the deployment environment.');
+      return;
+    }
     
     const userMsg = text;
     setInput('');
